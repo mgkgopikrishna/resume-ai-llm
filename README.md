@@ -278,4 +278,4 @@ python app.py
 
 **Gopi Krishna Marka** — MLOps and DevOps Engineer learning AI from scratch
 
-*Proof that a DevOps Engineer can build and deploy a real LLM using zero dollars*
+* can build and deploy a real LLM using zero dollars*
