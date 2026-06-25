@@ -1,0 +1,9 @@
+torch
+transformers
+datasets
+tiktoken
+peft
+gradio
+huggingface_hub
+scrapegraphai
+playwright
