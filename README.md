@@ -6,6 +6,7 @@
 ![PyTorch](https://img.shields.io/badge/PyTorch-EE4C2C?style=flat-square&logo=pytorch&logoColor=white)
 ![HuggingFace](https://img.shields.io/badge/HuggingFace-FFD21E?style=flat-square&logo=huggingface&logoColor=black)
 ![Gradio](https://img.shields.io/badge/Gradio-FF7C00?style=flat-square&logo=gradio&logoColor=white)
+![ScrapeGraphAI](https://img.shields.io/badge/ScrapeGraphAI-4B8BBE?style=flat-square&logo=python&logoColor=white)
 ![Status](https://img.shields.io/badge/Status-Live-brightgreen?style=flat-square)
 
 ---
@@ -226,6 +227,53 @@ demo.launch()
 | Training Time | ~45 minutes |
 | Deployment | Live on HuggingFace |
 
+## 🔍 ScrapeGraphAI Integration — Job Description Scraping
+
+This project now uses [ScrapeGraphAI](https://github.com/ScrapeGraphAI/Scrapegraph-ai) to automatically extract structured data from job postings. You only need to paste a URL (or raw text) and the AI reads the page, pulls out the skills, responsibilities, and requirements, and feeds them directly into the resume generator.
+
+### How It Works
+
+```
+Job Posting URL
+      │
+      ▼
+ ScrapeGraphAI (SmartScraperGraph)
+      │  uses LLM to parse the page
+      ▼
+ Structured JSON
+ {
+   "job_title": "Senior DevOps Engineer",
+   "required_skills": ["Kubernetes", "Terraform", "AWS"],
+   "responsibilities": ["Build CI/CD pipelines", ...],
+   ...
+ }
+      │
+      ▼
+ Resume AI (GPT-2 + LoRA)
+      │  generates tailored content
+      ▼
+ Tailored Resume Section
+```
+
+### Scraping a Job from the Command Line
+
+```bash
+# Scrape a job posting URL directly
+python scrape_jobs.py https://jobs.example.com/devops-engineer
+
+# Output: structured JSON with title, skills, responsibilities, etc.
+```
+
+### LLM Options for Scraping (pick one)
+
+| Provider | Setup | Cost |
+|----------|-------|------|
+| Ollama (local) | `ollama pull llama3.2` | Free |
+| Groq | `export GROQ_API_KEY=your_key` | Free tier |
+| OpenAI | `export OPENAI_API_KEY=your_key` | Paid |
+
+The scraper auto-detects which provider to use based on your environment variables, falling back to Ollama if none are set.
+
 ## 🛠️ Full Tech Stack
 
 | Tool | What It Does |
@@ -239,6 +287,7 @@ demo.launch()
 | Gradio | Creates the web demo interface |
 | Kaggle | Free GPU cloud environment |
 | HuggingFace Hub | Hosts and shares the model |
+| ScrapeGraphAI | AI-powered job description scraper |
 
 ## 🔧 How To Run This Yourself
 
@@ -248,22 +297,47 @@ git clone https://github.com/mgkgopikrishna/resume-ai-llm
 cd resume-ai-llm
 
 # 2. Install dependencies
-pip install torch transformers datasets tiktoken peft gradio huggingface_hub
+pip install -r requirements.txt
+playwright install
 
-# 3. Add your training data to data/resume_data.txt
+# 3. (Optional) Set up a free LLM for job scraping
+#    Option A: Install Ollama and pull a model
+#      brew install ollama && ollama pull llama3.2
+#    Option B: Get a free Groq API key at console.groq.com
+#      export GROQ_API_KEY=your_key_here
 
-# 4. Tokenize the data
+# 4. Add your training data to data/resume_data.txt
+
+# 5. Tokenize the data
 python data/prepare.py
 
-# 5. Train from scratch
+# 6. Train from scratch
 python train.py config/train_resume.py
 
-# 6. Fine-tune with LoRA
+# 7. Fine-tune with LoRA
 python finetune_lora.py
 
-# 7. Run the demo locally
+# 8. Run the full app (scraping + generation)
 python app.py
 # Open http://localhost:7860 in your browser
+```
+
+### Scraping Only (no training needed)
+
+```bash
+# Scrape any job posting URL
+python scrape_jobs.py https://jobs.example.com/devops-engineer-123
+
+# Or use it in Python
+from scrape_jobs import scrape_job
+job = scrape_job("https://jobs.example.com/devops-engineer-123")
+print(job["required_skills"])
+
+# Generate tailored resume content from the scraped job
+from resume_tailor import load_generator, generate_resume_section
+gen = load_generator()
+content = generate_resume_section(job, generator=gen)
+print(content)
 ```
 
 ## 💡 Key Lessons Learned
